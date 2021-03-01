@@ -5,10 +5,10 @@ import "./App.css";
 import { drawStroke, setCanvasSize, clearCanvas } from "./canvasUtils";
 import { ColorPanel } from "./shared/ColorPanel";
 import { EditPanel } from "./shared/EditPanel";
-import { beginStroke, updateStroke } from "./modules/currentStroke/actions";
+import { beginStroke, updateStroke } from "./modules/currentStroke/slice";
+import { endStroke } from "./modules/sharedActions";
 import { currentStrokeSelector } from "./modules/currentStroke/selectors";
 import { historyIndexSelector } from "./modules/historyIndex/selectors";
-import { endStroke } from "./modules/strokes/actions";
 import { strokesSelector } from "./modules/strokes/selectors";
 import { useCanvas } from "./CanvasContext";
 import { FilePanel } from "./shared/FilePanel";
@@ -72,12 +72,14 @@ function App() {
     nativeEvent,
   }: React.MouseEvent<HTMLCanvasElement>) => {
     const { offsetX, offsetY } = nativeEvent;
-    dispatch(beginStroke(offsetX, offsetY));
+    dispatch(beginStroke({ x: offsetX, y: offsetY }));
   };
 
   const endDrawing = () => {
     if (isDrawing) {
-      dispatch(endStroke(historyIndex, currentStroke));
+      dispatch(
+        endStroke({ stroke: currentStroke, historyIndex: historyIndex })
+      );
     }
   };
 
@@ -86,7 +88,7 @@ function App() {
       return;
     }
     const { offsetX, offsetY } = nativeEvent;
-    dispatch(updateStroke(offsetX, offsetY));
+    dispatch(updateStroke({ x: offsetX, y: offsetY }));
   };
 
   return (
