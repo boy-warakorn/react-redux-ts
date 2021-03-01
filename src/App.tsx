@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import "./App.css";
-import { drawStroke, setCanvasSize, clearCanvas } from "./canvasUtils";
+import { drawStroke, setCanvasSize, clearCanvas } from "./utils/canvasUtils";
 import { ColorPanel } from "./shared/ColorPanel";
 import { EditPanel } from "./shared/EditPanel";
 import { beginStroke, updateStroke } from "./modules/currentStroke/slice";
@@ -12,6 +12,7 @@ import { historyIndexSelector } from "./modules/historyIndex/selectors";
 import { strokesSelector } from "./modules/strokes/selectors";
 import { useCanvas } from "./CanvasContext";
 import { FilePanel } from "./shared/FilePanel";
+import { ModalLayer } from "./ModalLayer";
 
 const WIDTH = 1024;
 const HEIGHT = 570;
@@ -66,7 +67,7 @@ function App() {
         drawStroke(context, stroke.points, stroke.color);
       });
     });
-  }, [historyIndex]);
+  }, [historyIndex, strokes]);
 
   const startDrawing = ({
     nativeEvent,
@@ -99,6 +100,7 @@ function App() {
           <button aria-label="Close" />
         </div>
       </div>
+      <ModalLayer />
       <FilePanel />
       <EditPanel />
       <ColorPanel />
