@@ -1,16 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { currentStrokeSelector } from "./selectors";
+
 import "./App.css";
-import { beginStroke, endStroke, updateStroke } from "./actions";
 import { drawStroke, setCanvasSize, clearCanvas } from "./canvasUtils";
+import { ColorPanel } from "./ColorPanel";
+import { EditPanel } from "./EditPanel";
+import { beginStroke, updateStroke } from "./modules/currentStroke/actions";
+import { currentStrokeSelector } from "./modules/currentStroke/selectors";
+import { historyIndexSelector } from "./modules/historyIndex/selectors";
+import { endStroke } from "./modules/strokes/actions";
+import { strokesSelector } from "./modules/strokes/selectors";
 
 const WIDTH = 1024;
-const HEIGHT = 768;
+const HEIGHT = 570;
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const currentStroke = useSelector(currentStrokeSelector);
+  const strokes = useSelector(strokesSelector);
+  const historyIndex = useSelector(historyIndexSelector);
   const dispatch = useDispatch();
   const isDrawing = !!currentStroke.points.length;
 
@@ -44,6 +52,20 @@ function App() {
     clearCanvas(canvas);
   }, []);
 
+  useEffect(() => {
+    const { canvas, context } = getCanvasWithContext();
+    if (!context || !canvas) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      clearCanvas(canvas);
+
+      strokes.slice(0, strokes.length - historyIndex).forEach((stroke) => {
+        drawStroke(context, stroke.points, stroke.color);
+      });
+    });
+  }, [historyIndex]);
+
   const startDrawing = ({
     nativeEvent,
   }: React.MouseEvent<HTMLCanvasElement>) => {
@@ -53,7 +75,7 @@ function App() {
 
   const endDrawing = () => {
     if (isDrawing) {
-      dispatch(endStroke());
+      dispatch(endStroke(historyIndex, currentStroke));
     }
   };
 
@@ -73,6 +95,8 @@ function App() {
           <button aria-label="Close" />
         </div>
       </div>
+      <EditPanel />
+      <ColorPanel />
       <canvas
         onMouseDown={startDrawing}
         onMouseUp={endDrawing}
