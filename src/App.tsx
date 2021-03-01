@@ -1,21 +1,23 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import "./App.css";
 import { drawStroke, setCanvasSize, clearCanvas } from "./canvasUtils";
-import { ColorPanel } from "./ColorPanel";
-import { EditPanel } from "./EditPanel";
+import { ColorPanel } from "./shared/ColorPanel";
+import { EditPanel } from "./shared/EditPanel";
 import { beginStroke, updateStroke } from "./modules/currentStroke/actions";
 import { currentStrokeSelector } from "./modules/currentStroke/selectors";
 import { historyIndexSelector } from "./modules/historyIndex/selectors";
 import { endStroke } from "./modules/strokes/actions";
 import { strokesSelector } from "./modules/strokes/selectors";
+import { useCanvas } from "./CanvasContext";
+import { FilePanel } from "./shared/FilePanel";
 
 const WIDTH = 1024;
 const HEIGHT = 570;
 
 function App() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useCanvas();
   const currentStroke = useSelector(currentStrokeSelector);
   const strokes = useSelector(strokesSelector);
   const historyIndex = useSelector(historyIndexSelector);
@@ -95,6 +97,7 @@ function App() {
           <button aria-label="Close" />
         </div>
       </div>
+      <FilePanel />
       <EditPanel />
       <ColorPanel />
       <canvas
